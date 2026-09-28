@@ -40,10 +40,16 @@ wrapErrorHandler(async function initVersionAndCrashOptions() {
   });
 
   storage.addListener(function storageListener(changes) {
-    if (!changes.crashOptions?.newValue) return;
-
-    const crashOptions = changes.crashOptions.newValue;
-    setCrashOptions(crashOptions);
+    if (changes.crashOptions?.newValue) {
+      const crashOptions = changes.crashOptions.newValue;
+      setCrashOptions(crashOptions);
+    }
+    if (changes['setting-i18n']?.newValue !== undefined) {
+      if (window.ambientlight?.settings) {
+        window.ambientlight.settings.i18n = changes['setting-i18n'].newValue;
+        window.ambientlight.settings.updateMenuTranslations();
+      }
+    }
   });
 })();
 

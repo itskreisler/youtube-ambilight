@@ -1,3 +1,4 @@
+import { useTranslations } from '../i18n/index.js';
 import { defaultCrashOptions, storage } from './libs/storage';
 import { syncStorage } from './libs/sync-storage';
 import { getFeedbackFormLink, getPrivacyPolicyLink } from './libs/utils';
@@ -27,7 +28,7 @@ for (const input of checkboxInputs) {
       await storage.set('crashOptions', crashOptions);
     } catch {
       alert(
-        'Crash reports options changed to many times. Please wait a few seconds.'
+        useTranslations(i18nSelect?.value || 'es')('options.crashReportAlert') || 'Crash reports options changed to many times. Please wait a few seconds.'
       );
       input.checked = !input.checked;
       crashOptions[input.name] = input.checked;
@@ -49,7 +50,7 @@ for (const elem of toggles) {
 if (!chrome?.storage?.local?.onChanged) {
   const synchronizationWarning = document.createElement('div');
   synchronizationWarning.textContent =
-    "Unable to synchronize any crash option changes to youtube pages that are already open. Make sure to refresh any open youtube pages after you've changed an option.";
+    useTranslations(i18nSelect?.value || "es")("options.synchronizationWarning") || "Unable to synchronize any crash option changes to youtube pages that are already open. Make sure to refresh any open youtube pages after you've changed an option.";
   synchronizationWarning.classList.add('warning');
   document
     .querySelector('.warnings-container')
@@ -69,11 +70,12 @@ const importSettings = async (storageName, importJson) => {
     importExportStatusDetails.scrollTo(0, 0);
 
     const jsonString = await importJson();
-    if (!jsonString) throw new Error('No settings found to import');
+    const tOpt = useTranslations(document.querySelector('#i18nSelect')?.value || 'es');
+    if (!jsonString) throw new Error(tOpt('options.noSettingsToImport') || 'No settings found to import');
 
     let importedObject = JSON.parse(jsonString);
     if (typeof importedObject !== 'object')
-      throw new Error('No settings found to import');
+      throw new Error(tOpt('options.noSettingsToImport') || 'No settings found to import');
 
     // Temporarely import the setting blur as blur2
     // https://github.com/WesselKroos/youtube-ambilight/issues/191#issuecomment-1703792823
@@ -270,7 +272,7 @@ on(exportFileButton, 'click', async () => {
     link.setAttribute('download', 'ambient-light-for-youtube-settings.json');
     link.setAttribute(
       'title',
-      'If the automatic download was blocked:\n1. Right click on this link \n2. Click on "Save link as..."'
+      (useTranslations(document.querySelector('#i18nSelect')?.value || 'es')('options.exportFileTooltip')) || 'If the automatic download was blocked:\n1. Right click on this link \n2. Click on "Save link as..."'
     );
     link.style.display = 'block';
     link.style.marginTop = '0';
@@ -322,3 +324,59 @@ if (chrome?.storage?.sync?.onChanged) {
     syncStorage.removeListener(updateImportableAccountStatus);
   });
 }
+
+const i18nSelect = document.querySelector('#i18nSelect');
+if (i18nSelect) {
+  (async function initI18nSetting() {
+    const i18nVal = (await storage.get('setting-i18n')) || 'es';
+    i18nSelect.value = i18nVal;
+    applyTranslations(i18nVal);
+  })();
+  on(i18nSelect, 'change', async () => {
+    await storage.set('setting-i18n', i18nSelect.value);
+    applyTranslations(i18nSelect.value);
+  });
+}
+
+const applyTranslations = (locale) => {
+  const t = useTranslations(locale || 'es');
+  const setText = (id, key) => {
+    const el = document.querySelector(id);
+    if (el && t(key)) el.textContent = t(key);
+  };
+
+  setText('#optionsTitle', 'options.title');
+  setText('#optionsHeader', 'options.header');
+  setText('#settingsMovedText', 'options.settingsMoved');
+  setText('#noSettingsTitle', 'options.noSettingsTitle');
+  setText('#noSettingsText', 'options.noSettingsText');
+  setText('#noSettingsReport1', 'options.noSettingsReport1');
+  setText('#createIssueLink', 'options.createIssue');
+  setText('#orText', 'options.or');
+  setText('#feedbackFormLink', 'options.feedbackForm');
+  setText('#fixPerformanceTitle', 'options.fixPerformanceTitle');
+  setText('#fixPerformanceText', 'options.fixPerformanceText');
+  setText('#supportMeTitle', 'options.supportMeTitle');
+  setText('#languageTitle', 'options.languageTitle');
+  setText('#selectLanguageLabel', 'options.selectLanguageLabel');
+  setText('#importExportTitle', 'options.importExportTitle');
+  setText('#fileStorageTitle', 'options.fileStorage');
+  setText('#exportFileBtn', 'options.exportToFile');
+  setText('#importFileBtn', 'options.importFromFile');
+  setText('#cloudStorageTitle', 'options.cloudStorage');
+  setText('#exportAccountBtn', 'options.exportToCloud');
+  setText('#importAccountBtn', 'options.importFromCloud');
+  setText('#crashTitle', 'options.crashTitle');
+  setText('#crashText', 'options.crashText');
+  setText('#crashAllowedTitle', 'options.crashAllowedTitle');
+  setText('#videoOptionLabel', 'options.videoOption');
+  setText('#technicalOptionLabel', 'options.technicalOption');
+  setText('#browserVersionLabel', 'options.browserVersion');
+  setText('#osVersionLabel', 'options.osVersion');
+  setText('#displayCapabilitiesLabel', 'options.displayCapabilities');
+  setText('#playerStateLabel', 'options.playerState');
+  setText('#layoutStateLabel', 'options.layoutState');
+  setText('#crashOptionLabel', 'options.crashOption');
+  setText('#noReportsWarning', 'options.noReportsWarning');
+  setText('#privacyPolicyLink', 'options.privacyPolicy');
+};

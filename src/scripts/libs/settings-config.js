@@ -832,6 +832,21 @@ Click on the questionmark for more and updated information about these artifacts
     default: false,
   },
   {
+    name: 'i18n',
+    label: 'Language (i18n)',
+    type: 'list',
+    manualinput: false,
+    default: 'es',
+    valuePoints: ['es', 'en'],
+    min: 0,
+    max: 1,
+    step: 1,
+    snapPoints: [
+      { value: 0, label: 'Español' },
+      { value: 1, label: 'English' },
+    ],
+  },
+  {
     name: 'theme',
     label: 'Appearance (theme)',
     type: 'list',
