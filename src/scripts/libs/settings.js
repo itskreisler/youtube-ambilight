@@ -918,6 +918,10 @@ But if this happens frequently, here are some possible causes:
             this.set(setting.name, value);
             valueElem.textContent = this.getSettingListDisplayText(setting);
 
+            if (setting.name === 'i18n') {
+              this.updateMenuTranslations();
+              return;
+            }
             if (setting.name === 'theme') {
               this.ambientlight.theming.updateTheme(true);
               return;
@@ -1495,6 +1499,80 @@ But if this happens frequently, here are some possible causes:
     const seconds = frames / 30;
     if (seconds < 1) return `${Math.round(seconds * 1000)} ms`;
     return `${Math.round(seconds * 10) / 10} seconds`;
+  }
+
+
+  updateMenuTranslations() {
+    if (!this.menuElem) return;
+    const locale = this.i18n || 'es';
+    const t = useTranslations(locale);
+
+    const troubleshootLinkText = this.menuElem.querySelector('.ytpa-feedback-link__text');
+    if (troubleshootLinkText) troubleshootLinkText.textContent = t('settings.troubleshoot') || 'Troubleshoot performance problems';
+
+    const resetBtn = this.menuElem.querySelector('.ytpa-reset-settings-btn');
+    if (resetBtn) resetBtn.title = t('settings.resetSettings') || 'Reset all settings';
+
+    const feedbackLinks = this.menuElem.querySelectorAll('.ytpa-feedback-link__text');
+    if (feedbackLinks.length > 1) feedbackLinks[1].textContent = t('settings.giveFeedback') || 'Give feedback or a rating';
+
+    const donateLinkImage = this.menuElem.querySelector('.ytpa-donate-link__image');
+    if (donateLinkImage) donateLinkImage.alt = t('settings.supportDonation') || 'Support me via a donation';
+
+    const importTooltip = this.menuElem.querySelector('.ytpa-export-import-settings-btn__tooltip');
+    if (importTooltip) importTooltip.textContent = t("settings.importTooltip") || importTooltip.textContent;
+
+    for (const setting of SettingsConfig) {
+      const settingElem = this.menuElem.querySelector(getSettingQuerySelector(setting.name));
+      if (!settingElem) continue;
+
+      const isSection = setting.type === 'section';
+      const labelElem = isSection
+        ? settingElem.querySelector('.ytpa-section__label')
+        : settingElem.querySelector('.ytp-menuitem-label');
+
+      if (labelElem) {
+        const labelText = isSection
+          ? (t('settings.sections.' + setting.name) || setting.label)
+          : (t('settings.labels.' + setting.name) || setting.label);
+
+        const keyElem = labelElem.querySelector('.ytpa-menuitem-key');
+        const qElem = labelElem.querySelector('a');
+        const descElem = labelElem.querySelector('.ytpa-menuitem-description');
+
+        const nodes = [document.createTextNode(labelText)];
+
+        if (keyElem) {
+          keyElem.title = t('settings.hotkeyTooltip') || keyElem.title;
+          nodes.push(document.createTextNode(' ['));
+          nodes.push(keyElem);
+          nodes.push(document.createTextNode(']'));
+        }
+
+        if (qElem) {
+          qElem.title = t('settings.questions.' + setting.name) || qElem.title;
+          nodes.push(qElem);
+        }
+
+        const descText = t('settings.descriptions.' + setting.name) || setting.description;
+        if (descText) {
+          nodes.push(document.createElement('br'));
+          const descSpan = descElem || document.createElement('span');
+          descSpan.className = 'ytpa-menuitem-description';
+          descSpan.textContent = descText;
+          nodes.push(descSpan);
+        }
+
+        labelElem.replaceChildren(...nodes);
+      }
+
+      if (setting.type === 'list') {
+        const valueElem = this.menuElem.querySelector(`${getSettingQuerySelector(setting.name)}-value`);
+        if (valueElem) {
+          valueElem.textContent = this.getSettingListDisplayText(setting);
+        }
+      }
+    }
   }
 
   getSettingListDisplayText(setting) {
