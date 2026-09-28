@@ -28,7 +28,7 @@ for (const input of checkboxInputs) {
       await storage.set('crashOptions', crashOptions);
     } catch {
       alert(
-        'Crash reports options changed to many times. Please wait a few seconds.'
+        useTranslations(i18nSelect?.value || 'es')('options.crashReportAlert') || 'Crash reports options changed to many times. Please wait a few seconds.'
       );
       input.checked = !input.checked;
       crashOptions[input.name] = input.checked;
@@ -50,7 +50,7 @@ for (const elem of toggles) {
 if (!chrome?.storage?.local?.onChanged) {
   const synchronizationWarning = document.createElement('div');
   synchronizationWarning.textContent =
-    "Unable to synchronize any crash option changes to youtube pages that are already open. Make sure to refresh any open youtube pages after you've changed an option.";
+    useTranslations(i18nSelect?.value || "es")("options.synchronizationWarning") || "Unable to synchronize any crash option changes to youtube pages that are already open. Make sure to refresh any open youtube pages after you've changed an option.";
   synchronizationWarning.classList.add('warning');
   document
     .querySelector('.warnings-container')
@@ -70,11 +70,12 @@ const importSettings = async (storageName, importJson) => {
     importExportStatusDetails.scrollTo(0, 0);
 
     const jsonString = await importJson();
-    if (!jsonString) throw new Error('No settings found to import');
+    const tOpt = useTranslations(document.querySelector('#i18nSelect')?.value || 'es');
+    if (!jsonString) throw new Error(tOpt('options.noSettingsToImport') || 'No settings found to import');
 
     let importedObject = JSON.parse(jsonString);
     if (typeof importedObject !== 'object')
-      throw new Error('No settings found to import');
+      throw new Error(tOpt('options.noSettingsToImport') || 'No settings found to import');
 
     // Temporarely import the setting blur as blur2
     // https://github.com/WesselKroos/youtube-ambilight/issues/191#issuecomment-1703792823
@@ -271,7 +272,7 @@ on(exportFileButton, 'click', async () => {
     link.setAttribute('download', 'ambient-light-for-youtube-settings.json');
     link.setAttribute(
       'title',
-      'If the automatic download was blocked:\n1. Right click on this link \n2. Click on "Save link as..."'
+      (useTranslations(document.querySelector('#i18nSelect')?.value || 'es')('options.exportFileTooltip')) || 'If the automatic download was blocked:\n1. Right click on this link \n2. Click on "Save link as..."'
     );
     link.style.display = 'block';
     link.style.marginTop = '0';

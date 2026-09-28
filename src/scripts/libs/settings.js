@@ -398,7 +398,7 @@ But if this happens frequently, here are some possible causes:
 
     const importTooltip = document.createElement('span');
     importTooltip.className = 'ytpa-export-import-settings-btn__tooltip';
-    importTooltip.textContent = `How to export or import settings: 
+    importTooltip.textContent = t("settings.importTooltip") || `How to export or import settings:
 1. Click on the extension icon to open the option. 
 2. Scroll down to "Import / Export settings"`;
     importBtn.appendChild(importTooltip);
@@ -472,7 +472,7 @@ But if this happens frequently, here are some possible causes:
         labelKey.contentEditable = true;
         labelKey.className = 'ytpa-menuitem-key';
         labelKey.title =
-          'Click here and press a key to change the hotkey\n(Or press the escape key to disable this hotkey)';
+          t('settings.hotkeyTooltip') || 'Click here and press a key to change the hotkey\n(Or press the escape key to disable this hotkey)';
         labelKey.textContent = setting.key;
         labelElems.push(labelKey);
 
@@ -481,7 +481,7 @@ But if this happens frequently, here are some possible causes:
 
       if (setting.questionMark) {
         const questionMark = document.createElement('a');
-        questionMark.title = setting.questionMark.title;
+        questionMark.title = t('settings.questions.' + setting.name) || setting.questionMark.title;
         questionMark.style.padding = '0 5px';
         questionMark.textContent = '?';
         if (setting.questionMark.href) {
@@ -495,11 +495,12 @@ But if this happens frequently, here are some possible causes:
         labelElems.push(questionMark);
       }
 
-      if (setting.description) {
+      const descText = t('settings.descriptions.' + setting.name) || setting.description;
+      if (descText) {
         labelElems.push(document.createElement('br'));
         const labelDescription = document.createElement('span');
         labelDescription.className = 'ytpa-menuitem-description';
-        labelDescription.textContent = setting.description;
+        labelDescription.textContent = descText;
         labelElems.push(labelDescription);
       }
 
@@ -542,9 +543,9 @@ But if this happens frequently, here are some possible causes:
         checkbox.ariaChecked = value ? 'true' : 'false';
         if (setting.disabled) {
           checkbox.ariaDisabled = 'true';
-          checkbox.title = 'This setting is unavailable';
+          checkbox.title = t('settings.unavailable') || 'This setting is unavailable';
         } else {
-          checkbox.title = 'Right click to reset';
+          checkbox.title = t('settings.rightClickReset') || 'Right click to reset';
           checkbox.tabindex = '0';
         }
         sectionContent.appendChild(checkbox);
@@ -614,7 +615,7 @@ But if this happens frequently, here are some possible causes:
           setting.snapPoints ? 'ytp-menuitem-range--has-snap-points' : ''
         }`;
         range.setAttribute('rowspan', '2');
-        range.title = 'Right click to reset';
+        range.title = t('settings.rightClickReset') || 'Right click to reset';
         wrapper.appendChild(range);
 
         const input = document.createElement('input');
@@ -728,12 +729,9 @@ But if this happens frequently, here are some possible causes:
       '.ytpa-reset-settings-btn'
     );
     on(resetSettingsBtnElem, 'click', async () => {
-      if (
-        !confirm(
-          'Are you sure you want to reset ALL the settings and reload the watch page?'
-        )
-      )
-        return;
+      const tRes = useTranslations(this.i18n || 'es');
+      const confirmMsg = tRes('settings.resetConfirm') || 'Are you sure you want to reset ALL the settings and reload the watch page?';
+      if (!confirm(confirmMsg)) return;
 
       for (const setting of SettingsConfig) {
         this.saveStorageEntry(setting.name, undefined);
