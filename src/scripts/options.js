@@ -1,3 +1,4 @@
+import { useTranslations } from '../i18n/index.js';
 import { defaultCrashOptions, storage } from './libs/storage';
 import { syncStorage } from './libs/sync-storage';
 import { getFeedbackFormLink, getPrivacyPolicyLink } from './libs/utils';
@@ -322,3 +323,59 @@ if (chrome?.storage?.sync?.onChanged) {
     syncStorage.removeListener(updateImportableAccountStatus);
   });
 }
+
+const i18nSelect = document.querySelector('#i18nSelect');
+if (i18nSelect) {
+  (async function initI18nSetting() {
+    const i18nVal = (await storage.get('setting-i18n')) || 'es';
+    i18nSelect.value = i18nVal;
+    applyTranslations(i18nVal);
+  })();
+  on(i18nSelect, 'change', async () => {
+    await storage.set('setting-i18n', i18nSelect.value);
+    applyTranslations(i18nSelect.value);
+  });
+}
+
+const applyTranslations = (locale) => {
+  const t = useTranslations(locale || 'es');
+  const setText = (id, key) => {
+    const el = document.querySelector(id);
+    if (el && t(key)) el.textContent = t(key);
+  };
+
+  setText('#optionsTitle', 'options.title');
+  setText('#optionsHeader', 'options.header');
+  setText('#settingsMovedText', 'options.settingsMoved');
+  setText('#noSettingsTitle', 'options.noSettingsTitle');
+  setText('#noSettingsText', 'options.noSettingsText');
+  setText('#noSettingsReport1', 'options.noSettingsReport1');
+  setText('#createIssueLink', 'options.createIssue');
+  setText('#orText', 'options.or');
+  setText('#feedbackFormLink', 'options.feedbackForm');
+  setText('#fixPerformanceTitle', 'options.fixPerformanceTitle');
+  setText('#fixPerformanceText', 'options.fixPerformanceText');
+  setText('#supportMeTitle', 'options.supportMeTitle');
+  setText('#languageTitle', 'options.languageTitle');
+  setText('#selectLanguageLabel', 'options.selectLanguageLabel');
+  setText('#importExportTitle', 'options.importExportTitle');
+  setText('#fileStorageTitle', 'options.fileStorage');
+  setText('#exportFileBtn', 'options.exportToFile');
+  setText('#importFileBtn', 'options.importFromFile');
+  setText('#cloudStorageTitle', 'options.cloudStorage');
+  setText('#exportAccountBtn', 'options.exportToCloud');
+  setText('#importAccountBtn', 'options.importFromCloud');
+  setText('#crashTitle', 'options.crashTitle');
+  setText('#crashText', 'options.crashText');
+  setText('#crashAllowedTitle', 'options.crashAllowedTitle');
+  setText('#videoOptionLabel', 'options.videoOption');
+  setText('#technicalOptionLabel', 'options.technicalOption');
+  setText('#browserVersionLabel', 'options.browserVersion');
+  setText('#osVersionLabel', 'options.osVersion');
+  setText('#displayCapabilitiesLabel', 'options.displayCapabilities');
+  setText('#playerStateLabel', 'options.playerState');
+  setText('#layoutStateLabel', 'options.layoutState');
+  setText('#crashOptionLabel', 'options.crashOption');
+  setText('#noReportsWarning', 'options.noReportsWarning');
+  setText('#privacyPolicyLink', 'options.privacyPolicy');
+};

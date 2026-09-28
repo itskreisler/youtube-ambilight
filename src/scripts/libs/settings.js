@@ -1,3 +1,4 @@
+import { useTranslations } from "../../i18n/index.js";
 import {
   on,
   off,
@@ -382,7 +383,8 @@ But if this happens frequently, here are some possible causes:
 
     const troubleshootLinkText = document.createElement('span');
     troubleshootLinkText.className = 'ytpa-feedback-link__text';
-    troubleshootLinkText.textContent = 'Troubleshoot performance problems';
+    const t = useTranslations(this.i18n || 'es');
+    troubleshootLinkText.textContent = t('settings.troubleshoot') || 'Troubleshoot performance problems';
     troubleshootLink.appendChild(troubleshootLinkText);
 
     const toolbar = document.createElement('div');
@@ -404,7 +406,7 @@ But if this happens frequently, here are some possible causes:
     const resetBtn = document.createElement('button');
     resetBtn.className = 'ytpa-reset-settings-btn';
     resetBtn.type = 'button';
-    resetBtn.title = 'Reset all settings';
+    resetBtn.title = t('settings.resetSettings') || 'Reset all settings';
     toolbar.appendChild(resetBtn);
 
     const header2 = document.createElement('div');
@@ -428,7 +430,7 @@ But if this happens frequently, here are some possible causes:
 
     const feedbackLinkText = document.createElement('span');
     feedbackLinkText.className = 'ytpa-feedback-link__text';
-    feedbackLinkText.textContent = 'Give feedback or a rating';
+    feedbackLinkText.textContent = t('settings.giveFeedback') || 'Give feedback or a rating';
     feedbackLink.appendChild(feedbackLinkText);
 
     const donateLink = document.createElement('a');
@@ -440,7 +442,7 @@ But if this happens frequently, here are some possible causes:
 
     const donateLinkImage = document.createElement('img');
     donateLinkImage.className = 'ytpa-donate-link__image';
-    donateLinkImage.alt = 'Support me via a donation';
+    donateLinkImage.alt = t('settings.supportDonation') || 'Support me via a donation';
     donateLinkImage.title = 'Support me via a donation';
     donateLinkImage.src = `${baseUrl}images/donate.svg`;
     donateLinkImage.height = '23';
@@ -460,7 +462,8 @@ But if this happens frequently, here are some possible causes:
       if (setting.experimental) classes += ' ytpa-menuitem--experimental';
 
       const labelElems = [];
-      labelElems.push(document.createTextNode(setting.label));
+      const labelText = setting.type === 'section' ? (t('settings.sections.' + setting.name) || setting.label) : (t('settings.labels.' + setting.name) || setting.label);
+      labelElems.push(document.createTextNode(labelText));
 
       if (setting.key) {
         labelElems.push(document.createTextNode('['));
@@ -1497,23 +1500,25 @@ But if this happens frequently, here are some possible causes:
   }
 
   getSettingListDisplayText(setting) {
+    const locale = this.i18n || 'es';
+    const t = useTranslations(locale);
     const value = this[setting.name];
     if (setting.name === 'frameSync') {
       return {
-        [FRAMESYNC_DECODEDFRAMES]: 'Decoded framerate',
-        [FRAMESYNC_DISPLAYFRAMES]: 'Display framerate',
-        [FRAMESYNC_VIDEOFRAMES]: 'Video framerate',
+        [FRAMESYNC_DECODEDFRAMES]: t('settings.snaps.decoded') || 'Decoded framerate',
+        [FRAMESYNC_DISPLAYFRAMES]: t('settings.snaps.display') || 'Display framerate',
+        [FRAMESYNC_VIDEOFRAMES]: t('settings.snaps.video') || 'Video framerate',
       }[value];
     }
     if (setting.name === 'debandingBlendMode') {
       return {
-        [DEBANDING_BLEND_MODE_LCD]: 'LCD',
-        [DEBANDING_BLEND_MODE_OLED]: 'OLED',
+        [DEBANDING_BLEND_MODE_LCD]: t('settings.snaps.lcd') || 'LCD',
+        [DEBANDING_BLEND_MODE_OLED]: t('settings.snaps.oled') || 'OLED',
       }[value];
     }
     if (setting.name === 'barSizeDetectionAverageHistorySize') {
       return this.barSizeDetectionAverageHistorySize == 1
-        ? `1 frame`
+        ? '1 frame'
         : `${value} frames`;
     }
     if (setting.name === 'framerateLimit') {
@@ -1522,11 +1527,23 @@ But if this happens frequently, here are some possible causes:
     if (setting.name === 'frameFading') {
       return this.frameFadingValueToDuration(value);
     }
-    if (setting.name === 'theme' || setting.name === 'enableInViews') {
-      const snapPoint = setting.snapPoints.find(
-        (point) => point.value === value
-      );
-      return snapPoint?.hiddenLabel || snapPoint?.label;
+    if (setting.name === 'i18n') {
+      return t(`settings.snaps.${value}`) || value;
+    }
+    if (setting.name === 'theme') {
+      const map = { '-1': 'light', '0': 'default', '1': 'dark' };
+      return t(`settings.snaps.${map[value]}`) || value;
+    }
+    if (setting.name === 'enableInViews') {
+      const map = {
+        '0': 'all',
+        '1': 'small',
+        '2': 'smallAndTheater',
+        '3': 'theater',
+        '4': 'theaterAndFullscreen',
+        '5': 'fullscreen',
+      };
+      return t(`settings.snaps.${map[value]}`) || value;
     }
     return `${value}${setting.unit || '%'}`;
   }

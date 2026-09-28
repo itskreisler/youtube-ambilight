@@ -58,5 +58,8 @@
     "@rollup/plugin-eslint": {
       "eslint": "$eslint"
     }
+  },
+  "dependencies": {
+    "@kreisler/i18n": "^1.0.1"
   }
 }

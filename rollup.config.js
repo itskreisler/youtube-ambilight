@@ -15,7 +15,9 @@ dotenvx.config({
 const common = {
   context: 'window',
   plugins: [
-    resolve(),
+    resolve({
+      moduleDirectories: ['node_modules', '.'],
+    }),
     eslint({
       overrideConfigFile: './eslint.config.js',
     }),
